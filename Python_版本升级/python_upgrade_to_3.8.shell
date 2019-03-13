@@ -30,63 +30,83 @@ function download_file(){
 }
 
 function install_python(){
+
+	wget_pid=$(ps -ef | grep -v "grep" | grep wget | awk '{print $2}')
 	
-	# variable
-	file_name=$(ls $dir_software | grep Python | grep -v "configure" | grep -v "make")
+	while [ "$wget_pid" != "" ]
+	do
+		
+		echo " ---> wget is not yet. [waiting for another 10 second]"
+		echo "WGET PID is: [$wget_pid]"
+		
+		sleep 5
+		
+		# recheck
+		wget_pid=$(ps -ef | grep -v "grep" | grep wget | awk '{print $2}')
+		
+	done
 	
-	#echo $file_name
+	if [ "$wget_pid" == "" ]
+	then
 	
-	file_path_full="$dir_software/$file_name"
+		# variable
+		file_name=$(ls $dir_software | grep Python | grep -v "configure" | grep -v "make")
+		
+		#echo $file_name
+		
+		file_path_full="$dir_software/$file_name"
+		
+		echo "Target File is: [$file_path_full]"
+		
+		echo "---------------"
+		echo "UNZIPing ..."
+		echo "---------------"
+		
+		#tar --overwrite-dir --overwrite -xf $file_path_full
+		tar -xf $file_path_full
+		
+		echo "Successful."
+		
+		echo "---------------"
+		echo "Binary Install ... Begin"
+		echo "---------------"
+		
+		echo "Current Version:"
+		whereis python
+		
+		dir_name=$(ls $dir_software | grep Python | grep -v "tgz" | grep -v "configure" | grep -v "make")
+		dir_full=$dir_software/$dir_name
+		
+		echo "Target Directory is: [$dir_full]"
+		
+		cd $dir_full
+		
+		echo " -----> configure"
+		sh configure 1> $dir_full".log.configure" 2> $dir_full".log.configure.error"
+		echo ""
+		echo " -----> make"
+		make 1> $dir_full".log.make" 2> $dir_full".log.make.error"
+		echo ""
+		echo " -----> make install"
+		make install 1> $dir_full".log.make-install" 2> $dir_full".log.make-install.error"
+		echo ""
+		
+		echo "---------------"
+		echo "Binary Install ... Done"
+		echo "---------------"
+		
+		echo "Current Version:"
+		whereis python
 	
-	echo "Target File is: [$file_path_full]"
-	
-	echo "---------------"
-	echo "UNZIPing ..."
-	echo "---------------"
-	
-	#tar --overwrite-dir --overwrite -xf $file_path_full
-	tar -xf $file_path_full
-	
-	echo "Successful."
-	
-	echo "---------------"
-	echo "Binary Install ... Begin"
-	echo "---------------"
-	
-	echo "Current Version:"
-	whereis python
-	
-	dir_name=$(ls $dir_software | grep Python | grep -v "tgz" | grep -v "configure" | grep -v "make")
-	dir_full=$dir_software/$dir_name
-	
-	echo "Target Directory is: [$dir_full]"
-	
-	cd $dir_full
-	
-	echo " -----> configure"
-	sh configure 1> $dir_full".log.configure" 2> $dir_full".log.configure.error"
-	echo ""
-	echo " -----> make"
-	make 1> $dir_full".log.make" 2> $dir_full".log.make.error"
-	echo ""
-	echo " -----> make install"
-	make install 1> $dir_full".log.make-install" 2> $dir_full".log.make-install.error"
-	echo ""
-	
-	echo "---------------"
-	echo "Binary Install ... Done"
-	echo "---------------"
-	
-	echo "Current Version:"
-	whereis python
+	fi
 	
 	
 }
 
 function main_me(){
 
-	#prepare_rpms
-	#download_file
+	prepare_rpms
+	download_file
 	
 	install_python
 
