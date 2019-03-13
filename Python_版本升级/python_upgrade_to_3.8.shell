@@ -1,0 +1,93 @@
+
+# Need
+# 1. wget
+# 2. gunzip
+# 3. zlib
+# 4. libffi-devel
+# 5. openssl
+
+# variable
+
+# dir
+dir_software=/software
+
+# url
+url_python=https://www.python.org/ftp/python/3.8.0/Python-3.8.0a2.tgz
+
+# function
+
+function prepare_rpms(){
+	yum install -y wget gunzip gcc* zlib* libffi-devel openssl* > $dir_software/python_prepare_install_yum.log
+}
+
+function download_file(){
+	wget -b -P $dir_software -c $url_python
+}
+
+function install_python(){
+	
+	# variable
+	file_name=$(ls $dir_software | grep Python | grep -v "configure" | grep -v "make")
+	
+	#echo $file_name
+	
+	file_path_full="$dir_software/$file_name"
+	
+	echo "Target File is: [$file_path_full]"
+	
+	echo "---------------"
+	echo "UNZIPing ..."
+	echo "---------------"
+	
+	#tar --overwrite-dir --overwrite -xf $file_path_full
+	tar -xf $file_path_full
+	
+	echo "Successful."
+	
+	echo "---------------"
+	echo "Binary Install ... Begin"
+	echo "---------------"
+	
+	echo "Current Version:"
+	whereis python
+	
+	dir_name=$(ls $dir_software | grep Python | grep -v "tgz" | grep -v "configure" | grep -v "make")
+	dir_full=$dir_software/$dir_name
+	
+	echo "Target Directory is: [$dir_full]"
+	
+	cd $dir_full
+	
+	echo " -----> configure"
+	sh configure 1> $dir_full".log.configure" 2> $dir_full".log.configure.error"
+	echo ""
+	echo " -----> make"
+	make 1> $dir_full".log.make" 2> $dir_full".log.make.error"
+	echo ""
+	echo " -----> make install"
+	make install 1> $dir_full".log.make-install" 2> $dir_full".log.make-install.error"
+	echo ""
+	
+	echo "---------------"
+	echo "Binary Install ... Done"
+	echo "---------------"
+	
+	echo "Current Version:"
+	whereis python
+	
+	
+}
+
+function main_me(){
+
+	#prepare_rpms
+	#download_file
+	
+	install_python
+
+}
+
+# do
+main_me
+
+# done
