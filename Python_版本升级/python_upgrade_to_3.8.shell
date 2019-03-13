@@ -17,6 +17,11 @@ url_python=https://www.python.org/ftp/python/3.8.0/Python-3.8.0a2.tgz
 # function
 
 function prepare_rpms(){
+
+	echo "---------------"
+	echo "YUM installing ..."
+	echo "---------------"
+
 	yum install -y wget gunzip gcc* zlib* libffi-devel openssl* > $dir_software/python_prepare_install_yum.log
 }
 
